@@ -11,13 +11,41 @@ const InquiryForm = () => {
         mobile: '',
         destination: '',
     });
+    const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate submission
-        setTimeout(() => {
-            setSubmitted(true);
-        }, 800);
+        setStatus('submitting');
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({
+                    access_key: "045b40d9-771c-4f75-8617-82c56dec26e1",
+                    name: formData.name,
+                    mobile: formData.mobile,
+                    destination: formData.destination,
+                    message: (e.target as any).message?.value || '',
+                    subject: `New Inquiry from ${formData.name}`,
+                    from_name: "K-MERTZ Website",
+                }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                setSubmitted(true);
+                setStatus('success');
+            } else {
+                setStatus('error');
+            }
+        } catch (error) {
+            console.error(error);
+            setStatus('error');
+        }
     };
 
     return (
@@ -78,7 +106,11 @@ const InquiryForm = () => {
                                         Thank you for reaching out, {formData.name.split(' ')[0]}. One of our experts will contact you shortly.
                                     </p>
                                     <button
-                                        onClick={() => setSubmitted(false)}
+                                        onClick={() => {
+                                            setSubmitted(false);
+                                            setStatus('idle');
+                                            setFormData({ name: '', mobile: '', destination: '' });
+                                        }}
                                         className="mt-8 text-navy font-bold hover:underline"
                                     >
                                         Send another inquiry
@@ -94,8 +126,9 @@ const InquiryForm = () => {
                                             <input
                                                 required
                                                 type="text"
+                                                name="name"
                                                 placeholder="John Doe"
-                                                className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all"
+                                                className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all text-navy"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             />
@@ -107,8 +140,9 @@ const InquiryForm = () => {
                                             <input
                                                 required
                                                 type="tel"
+                                                name="mobile"
                                                 placeholder="+63 9xx xxx xxxx"
-                                                className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all"
+                                                className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all text-navy"
                                                 value={formData.mobile}
                                                 onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                                             />
@@ -119,41 +153,55 @@ const InquiryForm = () => {
                                         <label className="text-navy font-bold text-sm flex items-center gap-2">
                                             <MapPin size={16} /> Preferred Destination
                                         </label>
-                                        <select
-                                            required
-                                            className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all appearance-none"
-                                            value={formData.destination}
-                                            onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                                        >
-                                            <option value="">Select a destination</option>
-                                            <option value="Japan">Japan (Costa Serena)</option>
-                                            <option value="Taiwan">Taiwan (Costa Serena)</option>
-                                            <option value="Domestic">Domestic Philippines</option>
-                                            <option value="International">Other International</option>
-                                        </select>
+                                        <div className="relative">
+                                            <select
+                                                required
+                                                name="destination"
+                                                className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all appearance-none text-navy"
+                                                value={formData.destination}
+                                                onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+                                            >
+                                                <option value="" className="text-navy">Select a destination</option>
+                                                <option value="Japan" className="text-navy">Japan (Costa Serena)</option>
+                                                <option value="Taiwan" className="text-navy">Taiwan (Costa Serena)</option>
+                                                <option value="Domestic" className="text-navy">Domestic Philippines</option>
+                                                <option value="International" className="text-navy">Other International</option>
+                                            </select>
+                                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-navy/40">
+                                                <MapPin size={14} />
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-navy font-bold text-sm">Message (Optional)</label>
                                         <textarea
                                             rows={4}
+                                            name="message"
                                             placeholder="Tell us about your travel plans..."
-                                            className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all"
+                                            className="w-full px-5 py-4 bg-navy/5 border border-navy/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold/50 focus:bg-white transition-all text-navy"
                                         ></textarea>
                                     </div>
 
                                     <button
                                         type="submit"
-                                        className="w-full bg-gold hover:bg-gold-dark text-navy font-black py-5 rounded-xl transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest shadow-xl shadow-gold/20"
+                                        disabled={status === 'submitting'}
+                                        className="w-full bg-gold hover:bg-gold-dark text-navy font-black py-5 rounded-xl transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest shadow-xl shadow-gold/20 disabled:opacity-50"
                                     >
-                                        Send My Inquiry
+                                        {status === 'submitting' ? 'Sending...' : 'Send My Inquiry'}
                                         <Send size={20} />
                                     </button>
+
+                                    {status === 'error' && (
+                                        <p className="text-red-500 text-center text-xs font-bold">Failed to send inquiry. Please try again.</p>
+                                    )}
+
                                     <p className="text-[10px] text-center text-navy/40 uppercase font-bold tracking-tighter">
                                         By submitting, you agree to our privacy policy and terms of service.
                                     </p>
                                 </form>
                             )}
+
                         </div>
 
                     </div>

@@ -16,7 +16,7 @@ const Footer = () => {
                             <img
                                 src="/logo-horizontal.svg"
                                 alt="K-MERTZ Travel & Tours"
-                                className="h-14 w-auto brightness-0 invert"
+                                className="h-14 w-auto"
                             />
                         </Link>
                         <p className="text-white/60 text-sm leading-relaxed max-w-xs">
@@ -99,8 +99,6 @@ const Footer = () => {
                         <Link href="#" className="hover:text-gold">Terms of Service</Link>
                     </p>
                     <div className="flex items-center gap-6 text-white/40 text-xs font-bold uppercase tracking-tighter">
-                        <span>Powered by Next.js 14</span>
-                        <span className="w-1 h-1 bg-white/20 rounded-full" />
                         <span>Premium UI Design</span>
                     </div>
                 </div>
