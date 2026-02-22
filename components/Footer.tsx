@@ -99,7 +99,6 @@ const Footer = () => {
                         <Link href="#" className="hover:text-gold">Terms of Service</Link>
                     </p>
                     <div className="flex items-center gap-6 text-white/40 text-xs font-bold uppercase tracking-tighter">
-                        <span>Premium UI Design</span>
                     </div>
                 </div>
             </div>
